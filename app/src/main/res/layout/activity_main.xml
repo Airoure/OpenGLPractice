@@ -25,8 +25,8 @@
         app:layout_constraintRight_toRightOf="parent"/>
 
     <Button
-        android:id="@+id/btn_render_icon_pic"
-        android:text="渲染图标和图片"
+        android:id="@+id/btn_render_video"
+        android:text="渲染视频"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/btn_render_icon"
@@ -38,7 +38,7 @@
         android:text="渲染高斯模糊"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/btn_render_icon_pic"
+        app:layout_constraintTop_toBottomOf="@id/btn_render_video"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 

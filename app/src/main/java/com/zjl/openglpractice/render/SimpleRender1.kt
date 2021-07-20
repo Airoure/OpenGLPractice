@@ -24,7 +24,7 @@ import javax.microedition.khronos.opengles.GL10
  *
  * Copyright (c) 2021年, 4399 Network CO.ltd. All Rights Reserved.
  */
-class SimpleRender1(context: Context) : BaseRender() {
+open class SimpleRender1(context: Context) : BaseRender() {
 
     private var mCanUpdate = false
 
@@ -81,8 +81,8 @@ class SimpleRender1(context: Context) : BaseRender() {
             maCoordinateHandler = GLES20.glGetAttribLocation(mProgram, "aCoordinate")
             muTextureHandler = GLES20.glGetUniformLocation(mProgram,"uTexture")
             GLES20.glUniform1i(muTextureHandler, 0)
-            GLES20.glGenTextures(2, mTextureID, 0)
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureID[0])
+            GLES20.glGenTextures(1, mTextureID, 0)
+            //GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureID[0])
 
             GLES20.glTexParameterf(
                 GLES20.GL_TEXTURE_2D,
@@ -117,6 +117,7 @@ class SimpleRender1(context: Context) : BaseRender() {
         bindDrawFrameTexture()
         bindBitmapToTexture()
         initPointerAndDraw()
+        GLES20.glFinish()
     }
 
     private fun bindBitmapToTexture() {
@@ -127,7 +128,7 @@ class SimpleRender1(context: Context) : BaseRender() {
         //启用顶点的句柄
         GLES20.glEnableVertexAttribArray(maPositionHandler)
         GLES20.glEnableVertexAttribArray(maCoordinateHandler)
-        //设置着色器参数， 第二个参数表示一个顶点包含的数据数量，这里为xy，所以为2
+
         GLES20.glVertexAttribPointer(maPositionHandler, 2, GLES20.GL_FLOAT, false, 0, mVertexBuffer)
         GLES20.glVertexAttribPointer(maCoordinateHandler, 2, GLES20.GL_FLOAT, false, 0, mTextureBuffer)
         //开始绘制
@@ -138,7 +139,7 @@ class SimpleRender1(context: Context) : BaseRender() {
     private fun bindDrawFrameTexture() {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
         GLES20.glBindTexture(
-            GLES20.GL_TEXTURE_2D,
+            0x8D65,
             mTextureID[0]
         )
 
@@ -170,7 +171,8 @@ class SimpleRender1(context: Context) : BaseRender() {
     }
 
     private fun getFragmentShader(): String {
-        return "precision mediump float;" +
+        return  "#extension GL_OES_EGL_image_external : require\n" +
+                "precision mediump float;" +
                 "uniform sampler2D uTexture;" +
                 "varying vec2 vCoordinate;" +
                 "void main() {" +

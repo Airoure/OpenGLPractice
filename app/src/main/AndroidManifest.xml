@@ -9,7 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.OpenGLPractice">
-        <activity android:name=".RenderPicActivity"></activity>
+        <activity android:name=".RenderVideoActivity"></activity>
+        <activity android:name=".RenderIconActivity" />
+        <activity android:name=".RenderPicActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,8 +1,9 @@
 package com.zjl.openglpractice
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.zjl.openglpractice.render.SimpleRender1
+import com.zjl.openglpractice.render.SimpleRender2
 import kotlinx.android.synthetic.main.activity_render_pic.*
 
 class RenderPicActivity : AppCompatActivity() {
