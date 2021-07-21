@@ -1,12 +1,10 @@
-package com.zjl.openglpractice.render
+package com.zjl.openglpractice.eglrender
 
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.SurfaceTexture
 import android.opengl.GLES20
 import android.opengl.GLUtils
-import android.opengl.Matrix
-import android.util.Log
 import com.zjl.openglpractice.R
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -16,16 +14,16 @@ import javax.microedition.khronos.opengles.GL10
 
 /**
  * Project Name: OpenGLPractice
- * ClassName:    SimpleBaseRender2
+ * ClassName:    SimpleEGLRender2
  *
  * Description:
  *
  * @author  zjl
- * @date    2021年07月20日 9:32
+ * @date    2021年07月21日 10:34
  *
  * Copyright (c) 2021年, 4399 Network CO.ltd. All Rights Reserved.
  */
-class SimpleRender2(private val context: Context,private val width: Int, private val height: Int) : SimpleRender1(context) {
+class SimpleEGLRender2(private val context: Context,private val textureID: Int) : SimpleEGLRender1(context) {
 
     private var curProgram = 0
 
@@ -46,9 +44,9 @@ class SimpleRender2(private val context: Context,private val width: Int, private
     private var mTextureID = IntArray(2)
 
     private val mVertexCoors = floatArrayOf(
-        -1f, -1f,
-        1f, -1f,
-        -1f, 1f,
+        0f, 0f,
+        1f, 0f,
+        0f, 1f,
         1f ,1f
     )
 
@@ -77,8 +75,8 @@ class SimpleRender2(private val context: Context,private val width: Int, private
         mTextureBuffer.position(0)
     }
 
-    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        super.onSurfaceCreated(gl, config)
+    override fun onSurfaceCreated() {
+        //super.onSurfaceCreated()
 
         curProgram = createProgram(getVertexShader(), getFragmentShader())
         if (curProgram != 0) {
@@ -89,8 +87,8 @@ class SimpleRender2(private val context: Context,private val width: Int, private
 //            muMVPMatrixHandler = GLES20.glGetUniformLocation(curProgram, "uMVPMatrix")
 //            muSTMatrixHandler = GLES20.glGetUniformLocation(curProgram, "uSTMatrix")
 
-            GLES20.glGenTextures(1, mTextureID, 0)
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureID[0])
+ //           GLES20.glGenTextures(1, mTextureID, 0)
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureID)
             GLES20.glTexParameterf(
                 GLES20.GL_TEXTURE_2D,
                 GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST.toFloat()
@@ -111,8 +109,10 @@ class SimpleRender2(private val context: Context,private val width: Int, private
         }
     }
 
-    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        super.onSurfaceChanged(gl, width, height)
+    override fun onSurfaceChanged(width: Int, height: Int) {
+        //super.onSurfaceChanged( width, height)
+
+
         //旋转到正常角度
 //        Matrix.setRotateM(mMVPMatrix, 0, 180f, 0.0f, 0f, 1.0f)
 //        //调整大小比例
@@ -127,12 +127,12 @@ class SimpleRender2(private val context: Context,private val width: Int, private
 //        )
     }
 
-    override fun onDrawFrame(gl: GL10?) {
-        super.onDrawFrame(gl)
+    override fun onDrawFrame(surfaceTexture: SurfaceTexture) {
+       // super.onDrawFrame(surfaceTexture)
         GLES20.glUseProgram(curProgram)
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE1)
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,mTextureID[0])
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,textureID)
         GLUtils.texImage2D(
             GLES20.GL_TEXTURE_2D, 0, BitmapFactory.decodeResource(
                 context.resources,
@@ -142,10 +142,10 @@ class SimpleRender2(private val context: Context,private val width: Int, private
 
 
         mVertexBuffer.position(0)
-        GLES20.glVertexAttribPointer(maPositionHandler,2,GLES20.GL_FLOAT,false,0,mVertexBuffer)
+        GLES20.glVertexAttribPointer(maPositionHandler,2, GLES20.GL_FLOAT,false,0,mVertexBuffer)
         GLES20.glEnableVertexAttribArray(maPositionHandler)
         mTextureBuffer.position(0)
-        GLES20.glVertexAttribPointer(maTextureHandler,2,GLES20.GL_FLOAT,false,0,mTextureBuffer)
+        GLES20.glVertexAttribPointer(maTextureHandler,2, GLES20.GL_FLOAT,false,0,mTextureBuffer)
         GLES20.glEnableVertexAttribArray(maTextureHandler)
 
 //        GLES20.glUniformMatrix4fv(muSTMatrixHandler, 1, false, mSTMatrix, 0)
@@ -162,9 +162,6 @@ class SimpleRender2(private val context: Context,private val width: Int, private
         GLES20.glFinish()
     }
 
-    override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
-        super.onFrameAvailable(surfaceTexture)
-    }
 
     private fun getVertexShader(): String {
         return "attribute vec4 aPosition;" +

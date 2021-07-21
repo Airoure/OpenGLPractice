@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.SurfaceTexture
 import android.opengl.GLES20
+import android.opengl.GLSurfaceView
 import android.opengl.GLUtils
 import android.opengl.Matrix
 import com.zjl.openglpractice.R
@@ -24,7 +25,7 @@ import javax.microedition.khronos.opengles.GL10
  *
  * Copyright (c) 2021年, 4399 Network CO.ltd. All Rights Reserved.
  */
-class TempRender2(private val context: Context, private val width: Int, private val height: Int) :
+class TempRender2(private val context: Context, private val mWidth: Int, private val mHeight: Int) :
     SimpleRender1(context) {
 
     private var curProgram = 0
@@ -45,11 +46,13 @@ class TempRender2(private val context: Context, private val width: Int, private 
 
     private var mTextureID = IntArray(2)
 
+    private var mGLSurfaceView: GLSurfaceView? = null
+
     private val mVertexCoors = floatArrayOf(
         -1f, -1f,
         1f, -1f,
         -1f, 1f,
-        1f ,1f
+        1f, 1f
     )
 
     private val mTextureCoors = floatArrayOf(
@@ -59,9 +62,21 @@ class TempRender2(private val context: Context, private val width: Int, private 
         0.9f, 0f
     )
 
+    private val mTriangleVerticesData = floatArrayOf(
+        // X, Y, Z, U, V
+        -1.0f, -1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, -1.0f, 0.0f,
+        1.0f, 0.0f, -1.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 1.0f,
+    )
+
+
     private var mVertexBuffer: FloatBuffer
 
     private var mTextureBuffer: FloatBuffer
+
+    private var mTriangleVertices: FloatBuffer
 
     init {
         val bb = ByteBuffer.allocateDirect(mVertexCoors.size * 4)
@@ -75,6 +90,16 @@ class TempRender2(private val context: Context, private val width: Int, private 
         mTextureBuffer = cc.asFloatBuffer()
         mTextureBuffer.put(mTextureCoors)
         mTextureBuffer.position(0)
+
+        mTriangleVertices = ByteBuffer
+            .allocateDirect(
+                mTriangleVerticesData.size * 4
+            )
+            .order(ByteOrder.nativeOrder()).asFloatBuffer()
+        mTriangleVertices.put(mTriangleVerticesData).position(0)
+
+        Matrix.setIdentityM(mSTMatrix, 0)
+        Matrix.setIdentityM(mMVPMatrix, 0)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
@@ -83,9 +108,7 @@ class TempRender2(private val context: Context, private val width: Int, private 
         curProgram = createProgram(getVertexShader(), getFragmentShader())
         if (curProgram != 0) {
             maPositionHandler = GLES20.glGetAttribLocation(curProgram, "aPosition")
-            maTextureHandler = GLES20.glGetAttribLocation(curProgram, "aTextureCoord")
-            val mTextureUniform2 = GLES20.glGetUniformLocation(curProgram, "uTexture")
-            GLES20.glUniform1i(mTextureUniform2, 0)
+            maTextureHandler = GLES20.glGetAttribLocation(curProgram, "aCoordinate")
             muMVPMatrixHandler = GLES20.glGetUniformLocation(curProgram, "uMVPMatrix")
             muSTMatrixHandler = GLES20.glGetUniformLocation(curProgram, "uSTMatrix")
 
@@ -107,44 +130,71 @@ class TempRender2(private val context: Context, private val width: Int, private 
                 GLES20.GL_TEXTURE_2D,
                 GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE.toFloat()
             )
+            GLUtils.texImage2D(
+                GLES20.GL_TEXTURE_2D, 0, BitmapFactory.decodeResource(
+                    context.resources,
+                    R.drawable.mute
+                ), 0
+            )
 
         }
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         super.onSurfaceChanged(gl, width, height)
-        Matrix.setRotateM(mMVPMatrix, 0, 180f, 0.0f, 0f, 1.0f)
+//        mMVPMatrix.set(5,50f)
+//        Matrix.setRotateM(mMVPMatrix, 0, 0f, 0.0f, 0f, 0f)
         //调整大小比例
-        Matrix.scaleM(mMVPMatrix, 0, (50/width).toFloat(), (50/height).toFloat(), 1f)
-        //调整位置
-        Matrix.translateM(
-            mMVPMatrix,
-            0,
-            -(width/ (50) - 1.0f),
-            -(height / (50) - 1.0f),
-            0f
-        )
+//        Matrix.scaleM(mMVPMatrix, 0, (mWidth/mGLSurfaceView!!.width).toFloat(), (mHeight/mGLSurfaceView!!.height).toFloat(), 0f)
+//        //调整位置
+//        Matrix.translateM(
+//            mMVPMatrix,
+//            0,
+//            -(mGLSurfaceView!!.width/mWidth) - 1.0f,
+//            -(mGLSurfaceView!!.width/mWidth) - 1.0f,
+//            0f
+//        )
+//        for (element in mMVPMatrix) {
+//            Log.e("TESTEEE", "${element}")
+//        }
     }
 
     override fun onDrawFrame(gl: GL10?) {
         super.onDrawFrame(gl)
         GLES20.glUseProgram(curProgram)
-
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE1)
+        val sTexture2Handler = GLES20.glGetUniformLocation(curProgram, "sTexture2")
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE3)
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureID[0])
-        GLUtils.texImage2D(
-            GLES20.GL_TEXTURE_2D, 0, BitmapFactory.decodeResource(
-                context.resources,
-                R.drawable.mute
-            ), 0
+
+        GLES20.glUniform1i(sTexture2Handler, mTextureID[0])
+
+//        mVertexBuffer.position(0)
+//        GLES20.glVertexAttribPointer(maPositionHandler, 2, GLES20.GL_FLOAT, false, 10, mVertexBuffer)
+//        GLES20.glEnableVertexAttribArray(maPositionHandler)
+//        mTextureBuffer.position(0)
+//        GLES20.glVertexAttribPointer(maTextureHandler, 2, GLES20.GL_FLOAT, false, 10, mTextureBuffer)
+//        GLES20.glEnableVertexAttribArray(maTextureHandler)
+
+        mTriangleVertices.position(0)
+        GLES20.glVertexAttribPointer(
+            maPositionHandler,
+            3,
+            GLES20.GL_FLOAT,
+            false,
+            20,
+            mTriangleVertices
         )
-
-
-        mVertexBuffer.position(0)
-        GLES20.glVertexAttribPointer(maPositionHandler, 3, GLES20.GL_FLOAT, false, 20, mVertexBuffer)
         GLES20.glEnableVertexAttribArray(maPositionHandler)
-        mTextureBuffer.position(0)
-        GLES20.glVertexAttribPointer(maTextureHandler, 3, GLES20.GL_FLOAT, false, 20, mTextureBuffer)
+
+        mTriangleVertices.position(0)
+        GLES20.glVertexAttribPointer(
+            maTextureHandler,
+            3,
+            GLES20.GL_FLOAT,
+            false,
+            20,
+            mTriangleVertices
+        )
         GLES20.glEnableVertexAttribArray(maTextureHandler)
 
         GLES20.glUniformMatrix4fv(muSTMatrixHandler, 1, false, mSTMatrix, 0)
@@ -162,6 +212,10 @@ class TempRender2(private val context: Context, private val width: Int, private 
 
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
         super.onFrameAvailable(surfaceTexture)
+    }
+
+    fun setGLSurfaceView(view: GLSurfaceView) {
+        this.mGLSurfaceView = view
     }
 
     private fun getVertexShader(): String {

@@ -1,4 +1,4 @@
-package com.zjl.openglpractice.render
+package com.zjl.openglpractice.eglrender
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -15,16 +15,16 @@ import javax.microedition.khronos.opengles.GL10
 
 /**
  * Project Name: OpenGLPractice
- * ClassName:    SimpleShader1
+ * ClassName:    SimpleEGLRender1
  *
- * Description: 图片渲染器
+ * Description:
  *
  * @author  zjl
- * @date    2021年07月19日 14:37
+ * @date    2021年07月21日 10:32
  *
  * Copyright (c) 2021年, 4399 Network CO.ltd. All Rights Reserved.
  */
-open class SimpleRender1(context: Context) : BaseRender() {
+open class SimpleEGLRender1(context: Context) : BaseEGLRender() {
 
     private var mCanUpdate = false
 
@@ -54,10 +54,10 @@ open class SimpleRender1(context: Context) : BaseRender() {
     )
 
     private val mTextureCoors = floatArrayOf(
-        0f, 1f,
-        1f, 1f,
-        0f, 0f,
-        1f, 0f
+        0.1f, 1f,
+        0.9f, 1f,
+        0.1f, -0f,
+        0.9f, 0f
     )
 
     init {
@@ -74,7 +74,7 @@ open class SimpleRender1(context: Context) : BaseRender() {
         mTextureBuffer.position(0)
     }
 
-    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+    open fun onSurfaceCreated() {
         mProgram = createProgram(getVertexShader(), getFragmentShader())
         if (mProgram != 0) {
             maPositionHandler = GLES20.glGetAttribLocation(mProgram, "aPosition")
@@ -108,12 +108,13 @@ open class SimpleRender1(context: Context) : BaseRender() {
         }
     }
 
-    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+    open fun onSurfaceChanged(width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
     }
 
-    override fun onDrawFrame(gl: GL10?) {
+    open fun onDrawFrame(surfaceTexture: SurfaceTexture) {
         initDrawer()
+        surfaceTexture.updateTexImage()
         bindDrawFrameTexture()
         bindBitmapToTexture()
         initPointerAndDraw()
@@ -156,7 +157,7 @@ open class SimpleRender1(context: Context) : BaseRender() {
 
     }
 
-    override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
+    fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
         mCanUpdate = true
     }
 
