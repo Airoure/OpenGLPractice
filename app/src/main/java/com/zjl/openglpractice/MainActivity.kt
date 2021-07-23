@@ -11,6 +11,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        getExternalFilesDir("Video")?.absolutePath?.let { Log.e("TAG", it) }
         btn_render_pic.setOnClickListener {
             startActivity(Intent(this,RenderPicActivity::class.java))
         }
@@ -21,6 +22,10 @@ class MainActivity : AppCompatActivity() {
 
         btn_render_video.setOnClickListener {
             startActivity(Intent(this,RenderVideoActivity::class.java))
+        }
+
+        btn_render_icon_gaussic.setOnClickListener {
+            startActivity(Intent(this,RenderGaussicActivity::class.java))
         }
     }
 }

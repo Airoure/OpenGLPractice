@@ -2,8 +2,7 @@ package com.zjl.openglpractice
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.zjl.openglpractice.render.SimpleRender1
-import com.zjl.openglpractice.render.SimpleRender2
+import com.zjl.openglpractice.render2.TestSimpleRender
 import kotlinx.android.synthetic.main.activity_render_pic.*
 
 class RenderPicActivity : AppCompatActivity() {
@@ -12,7 +11,7 @@ class RenderPicActivity : AppCompatActivity() {
         setContentView(R.layout.activity_render_pic)
         render.apply {
             setEGLContextClientVersion(2)
-            val shader = SimpleRender1(this@RenderPicActivity)
+            val shader = TestSimpleRender(this@RenderPicActivity,1.0f,this)
             setRenderer(shader)
         }
     }

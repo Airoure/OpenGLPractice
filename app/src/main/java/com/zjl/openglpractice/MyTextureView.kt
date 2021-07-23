@@ -1,13 +1,14 @@
 package com.zjl.openglpractice
 
 import android.content.Context
+import android.graphics.BitmapFactory
+import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.media.AudioManager
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
-import android.opengl.GLSurfaceView
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import com.zjl.openglpractice.utils.TextureEGLHelper
@@ -28,23 +29,27 @@ class MyTextureView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
     defStyle: Int = 0
-) : TextureView(context,attributeSet,defStyle), TextureView.SurfaceTextureListener {
+) : TextureView(context, attributeSet, defStyle), TextureView.SurfaceTextureListener {
     private var mPlayer: IjkMediaPlayer? = null
     private var mTextureEGLHelper: TextureEGLHelper? = null
+
     init {
         surfaceTextureListener = this
-        mTextureEGLHelper = TextureEGLHelper(context,width,height)
+        mTextureEGLHelper = TextureEGLHelper(context, width, height)
     }
-    override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-        val textureID = loadOESTexture()
 
-        mTextureEGLHelper?.initEGL(this,textureID)
-        val surfaceTexture = mTextureEGLHelper?.loadTexture()
-        val videoSurface = Surface(surface)
+    override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+//        val textureID = loadOESTexture()
+//        mTextureEGLHelper?.initEGL(this,textureID)
+//        val surfaceTexture = mTextureEGLHelper?.loadTexture()
+//        setSurfaceTexture(surfaceTexture!!)
+
+        val videoSurface = Surface(surfaceTexture)
         mPlayer = IjkMediaPlayer().apply {
             setAudioStreamType(AudioManager.STREAM_MUSIC)
             setSurface(videoSurface)
-            dataSource = "/storage/emulated/0/Android/data/com.zjl.openglpractice/files/Video/test.mp4"
+            dataSource =
+                "/storage/emulated/0/Android/data/com.zjl.openglpractice/files/Video/test.mp4"
             prepareAsync()
             setOnPreparedListener {
                 start()
@@ -68,16 +73,20 @@ class MyTextureView @JvmOverloads constructor(
         val textureIds = IntArray(1)
         GLES20.glGenTextures(1, textureIds, 0)
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureIds[0])
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+        GLES20.glTexParameterf(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
             GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST.toFloat()
         )
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+        GLES20.glTexParameterf(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
             GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR.toFloat()
         )
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+        GLES20.glTexParameterf(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
             GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE.toFloat()
         )
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+        GLES20.glTexParameterf(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
             GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE.toFloat()
         )
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0)
